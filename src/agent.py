@@ -1,30 +1,53 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
-import pandas as pd
 import os
+import sys
 import ssl
 import logging
 
 # Configure logging
 logger = logging.getLogger("MDCCapitalAgent")
 
-# Optional SSL Bypass (useful for environments like Etrog/NetFree)
-if os.environ.get('MDC_BYPASS_SSL') == '1':
-    logger.warning("SSL Verification is BYPASSED (MDC_BYPASS_SSL=1)")
+# SSL Configuration - Run immediately
+# Check for custom certificate (e.g. for Etrog/NetFree filters)
+# Resolve path relative to this file to ensure it works regardless of CWD
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+
+# Prefer combined bundle if it exists (contains standard roots + custom CA)
+combined_cert_path = os.path.join(project_root, "combined.pem")
+etrog_cert_path = os.path.join(project_root, "etrog.crt")
+
+cert_path = None
+if os.path.exists(combined_cert_path):
+    cert_path = combined_cert_path
+elif os.path.exists(etrog_cert_path):
+    cert_path = etrog_cert_path
+
+print(f"DEBUG: Checking for certificate. Selected: {cert_path}")
+if cert_path:
+    print(f"DEBUG: Found custom certificate at {cert_path}. Configuring SSL...")
+    os.environ['GRPC_DEFAULT_SSL_ROOTS_FILE_PATH'] = cert_path
+    os.environ['SSL_CERT_FILE'] = cert_path
+    os.environ['REQUESTS_CA_BUNDLE'] = cert_path
+elif os.environ.get('MDC_BYPASS_SSL') == '1':
+    print("DEBUG: SSL Verification is BYPASSED (MDC_BYPASS_SSL=1)")
     os.environ['CURL_CA_BUNDLE'] = ''
     os.environ['PYTHONHTTPSVERIFY'] = '0'
-    os.environ['GRPC_DEFAULT_SSL_ROOTS_FILE_PATH'] = ''
     if hasattr(ssl, '_create_unverified_context'):
         ssl._create_default_https_context = ssl._create_unverified_context
 
+from langchain_google_genai import ChatGoogleGenerativeAI
+import pandas as pd
+
 class MDCCapitalAgent:
-    def __init__(self, df, api_key, model="gemini-1.5-flash"):
+    def __init__(self, df, api_key, model="gemini-2.5-flash"):
         self.df = df
         self.api_key = api_key
         # Initialize Gemini
         self.llm = ChatGoogleGenerativeAI(
             model=model, 
             google_api_key=api_key, 
-            temperature=0
+            temperature=0,
+            transport="rest",
         )
         logger.info(f"Agent initialized with model: {model}")
         

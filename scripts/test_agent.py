@@ -8,6 +8,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(PROJECT_ROOT)
 
 from src.agent import MDCCapitalAgent
+import src.agent
+print(f"DEBUG: src.agent loaded from: {src.agent.__file__}")
 
 # Configure logging for terminal output
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -24,8 +26,8 @@ def test_agent(api_key):
     df = pd.read_csv(DATA_PATH)
     
     print("Initializing Agent...")
-    # Using gemini-1.5-flash as it's faster and cheaper for testing
-    agent = MDCCapitalAgent(df, api_key, model="gemini-1.5-flash")
+    # Using gemini-2.5-flash as it is available in the current environment
+    agent = MDCCapitalAgent(df, api_key, model="gemini-2.5-flash")
     
     query = "What are the top 3 rejection reasons?"
     print(f"Asking query: {query}")

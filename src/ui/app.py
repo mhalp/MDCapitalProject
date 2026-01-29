@@ -5,68 +5,157 @@ import requests
 import matplotlib.pyplot as plt
 import seaborn as sns
 from dotenv import load_dotenv
+import time
 
 # Load environment variables
 load_dotenv()
 
 # Backend API URL
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+LOGO_PATH = "/home/aiuser/.gemini/antigravity/brain/a6948a49-d902-409c-b4b4-6cde70745235/md_capital_vector_logo_1769681768338.png"
 
 # Page Config
 st.set_page_config(
-    page_title="MD Capital | AI Claims Agent",
-    page_icon="🏥",
-    layout="wide"
+    page_title="MD Capital | AI Claims Intelligence",
+    page_icon="⚡",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Premium Look
+# Custom CSS for High-Tech Premium Look
 st.markdown("""
     <style>
-    .main {
-        background-color: #f8f9fa;
+    /* Main background and text */
+    .stApp {
+        background: radial-gradient(circle at top right, #0a192f, #020c1b);
+        color: #e6f1ff;
     }
+    
+    /* Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background-color: rgba(10, 25, 47, 0.95);
+        border-right: 1px solid rgba(100, 255, 218, 0.1);
+    }
+    
+    /* Glassmorphism for cards and metrics */
+    div[data-testid="stMetric"] {
+        background: rgba(17, 34, 64, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(100, 255, 218, 0.2);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transition: transform 0.3s ease;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-5px);
+        border-color: rgba(100, 255, 218, 0.5);
+    }
+    
+    /* Chat message styling */
+    .stChatMessage {
+        background: rgba(17, 34, 64, 0.4);
+        border-radius: 15px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(100, 255, 218, 0.05);
+    }
+    
+    /* Chat message text - ensure visibility */
+    .stChatMessage p, .stChatMessage div {
+        color: #ccd6f6 !important;
+    }
+    
+    /* Headers */
+    h1, h2, h3 {
+        color: #64ffda !important;
+        font-family: 'Inter', sans-serif;
+        font-weight: 800;
+        text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: rgba(17, 34, 64, 0.5);
+        border-radius: 10px 10px 0 0;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        color: #8892b0;
+        border: none;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(100, 255, 218, 0.1);
+        color: #64ffda !important;
+        border-bottom: 2px solid #64ffda !important;
+    }
+    
+    /* Buttons */
     .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        height: 3em;
-        background-color: #007bff;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #64ffda, #48d1cc);
+        color: #0a192f;
+        font-weight: 700;
+        border: none;
+        box-shadow: 0 4px 15px rgba(100, 255, 218, 0.2);
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #0056b3;
-        box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(100, 255, 218, 0.4);
+        color: #0a192f;
     }
+    
+    /* Input fields */
     .stTextInput>div>div>input {
-        border-radius: 8px;
+        background-color: rgba(17, 34, 64, 0.8);
+        color: #ccd6f6;
+        border: 1px solid rgba(100, 255, 218, 0.2);
+        border-radius: 10px;
     }
-    h1 {
-        color: #1e3d59;
-        font-weight: 800;
-        letter-spacing: -0.5px;
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
     }
-    .stMetric {
-        background-color: white;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    ::-webkit-scrollbar-track {
+        background: #020c1b;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #112240;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #233554;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # Sidebar
-st.sidebar.image("https://img.icons8.com/fluency/96/hospital.png", width=80)
-st.sidebar.title("MD Capital AI")
+if os.path.exists(LOGO_PATH):
+    st.sidebar.image(LOGO_PATH, use_container_width=True)
+else:
+    st.sidebar.title("⚡ MD Capital")
+
+st.sidebar.markdown("### 🛠️ System Configuration")
+api_key = st.sidebar.text_input("Gemini API Key", type="password", value=os.environ.get("GOOGLE_API_KEY", ""))
+
 st.sidebar.markdown("---")
-api_key = st.sidebar.text_input("Google API Key", type="password", value=os.environ.get("GOOGLE_API_KEY", ""))
+st.sidebar.markdown("### 📊 Live Status")
+status_placeholder = st.sidebar.empty()
 
 # Main UI
-st.title("🏥 MD Capital AI Claims Agent")
-st.markdown("#### Intelligent Analysis of Insurer Communications")
+st.title("⚡ MD Capital AI Intelligence")
+st.markdown("<p style='color: #8892b0; font-size: 1.2rem;'>Advanced Claims Analysis & Insurer Communications Intelligence</p>", unsafe_allow_html=True)
 
 if not api_key:
-    st.sidebar.warning("⚠️ Please enter your Google API Key to proceed.")
+    st.sidebar.warning("🔑 API Key required to activate AI Agent.")
+    st.info("Please enter your Google API Key in the sidebar to begin.")
     st.stop()
 
 # Helper to check if backend is up
@@ -78,9 +167,12 @@ def check_backend():
         return False
 
 if not check_backend():
-    st.error(f"🔌 Connection Error: Cannot reach Backend Server at {BACKEND_URL}")
-    st.info("💡 **How to fix:** Run `python src/api/server.py` in a separate terminal window.")
+    status_placeholder.error("🔴 Backend Offline")
+    st.error(f"🔌 Connection Error: Cannot reach Intelligence Server at {BACKEND_URL}")
+    st.info("💡 **System Admin:** Ensure `python src/api/server.py` is running.")
     st.stop()
+else:
+    status_placeholder.success("🟢 Backend Online")
 
 # Load Data from Backend
 @st.cache_data(ttl=600)
@@ -96,74 +188,109 @@ def get_data_from_backend():
 summary, df = get_data_from_backend()
 
 if df is None or df.empty:
-    st.warning("No data available from the backend.")
+    st.warning("📡 No data streams detected from backend.")
     st.stop()
 
 # Dashboard Tabs
-tab1, tab2, tab3 = st.tabs(["💬 AI Agent", "📊 Data Overview", "📋 Raw Data"])
+tab1, tab2, tab3 = st.tabs(["💬 AI Agent", "📊 Analytics", "📋 Data Stream"])
 
 with tab1:
-    st.markdown("### 💬 Ask the AI Agent")
-    st.info("The agent analyzes all communication records to find patterns and insights.")
-    
-    # Sample Questions
-    st.markdown("##### Quick Queries")
-    cols = st.columns(3)
-    if cols[0].button("🔍 Top 5 rejection reasons?"):
-        st.session_state.query = "What are the top 5 reasons claims are being denied?"
-    if cols[1].button("⚖️ Aetna vs UnitedHealthcare?"):
-        st.session_state.query = "Compare Aetna vs. UnitedHealthcare on denial reasons."
-    if cols[2].button("⏳ Slowest response times?"):
-        st.session_state.query = "Which insurer has the slowest response times based on days_since_submission?"
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = [
+            {"role": "assistant", "content": "System initialized. I am ready to analyze your claims data. How can I assist you today?"}
+        ]
 
-    query = st.text_input("Enter your question:", key="query_input", value=st.session_state.get('query', ''))
-    
-    if st.button("🚀 Analyze"):
-        if query:
-            with st.spinner("🧠 Agent is thinking..."):
-                try:
-                    payload = {"question": query, "api_key": api_key}
-                    response = requests.post(f"{BACKEND_URL}/ask", json=payload)
-                    if response.status_code == 200:
-                        st.markdown("---")
-                        st.success("#### 🤖 Agent Response")
-                        st.markdown(response.json()["response"])
-                    else:
-                        st.error(f"Backend Error: {response.text}")
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
-        else:
-            st.warning("Please enter a question.")
+    # Display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"], avatar="🤖" if message["role"] == "assistant" else "👤"):
+            st.markdown(message["content"])
+
+    # Chat input
+    if prompt := st.chat_input("Ask about rejection patterns, insurer performance, or specific claims..."):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user", avatar="👤"):
+            st.markdown(prompt)
+
+        # Generate response
+        with st.chat_message("assistant", avatar="🤖"):
+            message_placeholder = st.empty()
+            message_placeholder.markdown("🔍 *Analyzing data streams...*")
+            
+            try:
+                payload = {"question": prompt, "api_key": api_key}
+                response = requests.post(f"{BACKEND_URL}/ask", json=payload)
+                
+                if response.status_code == 200:
+                    full_response = response.json()["response"]
+                    # Simulate typing effect
+                    displayed_text = ""
+                    for char in full_response:
+                        displayed_text += char
+                        message_placeholder.markdown(displayed_text + "▌")
+                        time.sleep(0.005)
+                    message_placeholder.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                else:
+                    error_msg = f"⚠️ System Error: {response.text}"
+                    message_placeholder.error(error_msg)
+                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+            except Exception as e:
+                error_msg = f"❌ Connection Failed: {str(e)}"
+                message_placeholder.error(error_msg)
+                st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
 with tab2:
-    st.markdown("### 📊 Operational Insights")
+    st.markdown("### 📊 Operational Intelligence")
     
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Records", summary["total_records"])
-    col2.metric("Unique Insurers", len(summary["insurers"]))
-    col3.metric("Avg Urgency", f"{summary['avg_urgency']:.1f}")
-    col4.metric("Avg Days Pending", f"{summary['avg_days']:.1f}")
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    m_col1.metric("Total Records", summary["total_records"], delta=None)
+    m_col2.metric("Active Insurers", len(summary["insurers"]), delta=None)
+    m_col3.metric("Avg Urgency", f"{summary['avg_urgency']:.1f}", delta=None)
+    m_col4.metric("Avg Days Pending", f"{summary['avg_days']:.1f}", delta=None)
     
     st.markdown("---")
     col_a, col_b = st.columns(2)
     
+    # Set dark theme for plots
+    plt.style.use('dark_background')
+    
     with col_a:
-        st.markdown("##### Claim Status Distribution")
+        st.markdown("##### 📈 Claim Status Distribution")
         fig, ax = plt.subplots(figsize=(8, 5))
+        fig.patch.set_facecolor('#0a192f')
+        ax.set_facecolor('#0a192f')
         sns.countplot(data=df, x='claim_status', hue='claim_status', palette='viridis', ax=ax, legend=False)
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=45, color='#8892b0')
+        plt.yticks(color='#8892b0')
+        ax.spines['bottom'].set_color('#8892b0')
+        ax.spines['left'].set_color('#8892b0')
         st.pyplot(fig)
         
     with col_b:
-        st.markdown("##### Urgency by Insurer")
+        st.markdown("##### 📉 Urgency Variance by Insurer")
         fig, ax = plt.subplots(figsize=(8, 5))
+        fig.patch.set_facecolor('#0a192f')
+        ax.set_facecolor('#0a192f')
         sns.boxplot(data=df, x='insurer_name', y='urgency', hue='insurer_name', palette='magma', ax=ax, legend=False)
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=45, color='#8892b0')
+        plt.yticks(color='#8892b0')
+        ax.spines['bottom'].set_color('#8892b0')
+        ax.spines['left'].set_color('#8892b0')
         st.pyplot(fig)
 
 with tab3:
-    st.markdown("### 📋 Communication Records")
-    st.dataframe(df, use_container_width=True)
+    st.markdown("### 📋 Raw Communication Stream")
+    st.dataframe(
+        df, 
+        use_container_width=True,
+        column_config={
+            "urgency": st.column_config.ProgressColumn("Urgency", min_value=0, max_value=10, format="%d"),
+            "days_since_submission": st.column_config.NumberColumn("Days Pending", format="%d ⏳")
+        }
+    )
 
 st.markdown("---")
-st.caption("MD Capital AI Developer Take-Home Exercise | Built with ❤️ by Antigravity")
+st.caption("⚡ MD Capital Intelligence System | Powered by Advanced AI")
+
