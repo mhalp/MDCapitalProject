@@ -19,7 +19,7 @@ st.set_page_config(
     page_title="MD Capital | AI Claims Intelligence",
     page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for High-Tech Premium Look
@@ -52,17 +52,15 @@ st.markdown("""
         border-color: rgba(100, 255, 218, 0.5);
     }
     
-    /* Chat message styling */
-    .stChatMessage {
-        background: rgba(17, 34, 64, 0.4);
+    /* Result box styling */
+    .result-container {
+        background: rgba(17, 34, 64, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(100, 255, 218, 0.3);
         border-radius: 15px;
-        margin-bottom: 10px;
-        border: 1px solid rgba(100, 255, 218, 0.05);
-    }
-    
-    /* Chat message text - ensure visibility */
-    .stChatMessage p, .stChatMessage div {
-        color: #ccd6f6 !important;
+        padding: 30px;
+        margin-top: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     
     /* Headers */
@@ -71,28 +69,6 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
         font-weight: 800;
         text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
-        background-color: transparent;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: rgba(17, 34, 64, 0.5);
-        border-radius: 10px 10px 0 0;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        color: #8892b0;
-        border: none;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: rgba(100, 255, 218, 0.1);
-        color: #64ffda !important;
-        border-bottom: 2px solid #64ffda !important;
     }
     
     /* Buttons */
@@ -112,11 +88,18 @@ st.markdown("""
     }
     
     /* Input fields */
-    .stTextInput>div>div>input {
+    .stTextArea>div>div>textarea {
         background-color: rgba(17, 34, 64, 0.8);
         color: #ccd6f6;
-        border: 1px solid rgba(100, 255, 218, 0.2);
+        border: 1px solid rgba(100, 255, 218, 0.3);
         border-radius: 10px;
+        font-size: 1rem;
+        padding: 15px;
+    }
+    
+    .stTextArea>div>div>textarea:focus {
+        border-color: rgba(100, 255, 218, 0.6);
+        box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
     }
     
     /* Scrollbar */
@@ -133,30 +116,54 @@ st.markdown("""
     ::-webkit-scrollbar-thumb:hover {
         background: #233554;
     }
+
+    /* Sidebar form inputs — lighter text for readability */
+    section[data-testid="stSidebar"] .stTextInput>div>div>input,
+    section[data-testid="stSidebar"] .stTextArea>div>div>textarea {
+        background-color: rgba(20, 40, 70, 0.9);
+        color: #e6f1ff !important;
+        border: 1px solid rgba(100, 255, 218, 0.12) !important;
+    }
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] .stMarkdown div,
+    section[data-testid="stSidebar"] .stCaption {
+        color: #cfeeff !important;
+    }
+    section[data-testid="stSidebar"] input::placeholder,
+    section[data-testid="stSidebar"] textarea::placeholder {
+        color: #9fb3c8 !important;
+        opacity: 0.9;
+    }
     </style>
     """, unsafe_allow_html=True)
+
+# Hide Streamlit default header/footer/menu for a cleaner app surface
+st.markdown(
+        """
+        <style>
+            #MainMenu {visibility: hidden;}
+            header {visibility: hidden;}
+            footer {visibility: hidden;}
+            /* Fallback: remove extra top padding for main content */
+            .css-18e3th9 {padding-top: 0rem;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+)
 
 # Sidebar
 if os.path.exists(LOGO_PATH):
     st.sidebar.image(LOGO_PATH, use_container_width=True)
 else:
-    st.sidebar.title("⚡ MD Capital")
+    st.sidebar.title("MD Capital")
 
-st.sidebar.markdown("### 🛠️ System Configuration")
-api_key = st.sidebar.text_input("Gemini API Key", type="password", value=os.environ.get("GOOGLE_API_KEY", ""))
+st.sidebar.markdown("### System Configuration")
+api_key = st.sidebar.text_input("API Key (Gemini)", type="password", value=os.environ.get("GOOGLE_API_KEY", ""))
+st.sidebar.caption("Enter your Gemini API key. The key is used for LLM requests and kept in session state only.")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📊 Live Status")
+st.sidebar.markdown("Live Status")
 status_placeholder = st.sidebar.empty()
-
-# Main UI
-st.title("⚡ MD Capital AI Intelligence")
-st.markdown("<p style='color: #8892b0; font-size: 1.2rem;'>Advanced Claims Analysis & Insurer Communications Intelligence</p>", unsafe_allow_html=True)
-
-if not api_key:
-    st.sidebar.warning("🔑 API Key required to activate AI Agent.")
-    st.info("Please enter your Google API Key in the sidebar to begin.")
-    st.stop()
 
 # Helper to check if backend is up
 def check_backend():
@@ -166,13 +173,18 @@ def check_backend():
     except:
         return False
 
+if not api_key:
+    st.sidebar.warning("API key required to activate AI agent.")
+    st.info("Please enter your Google API Key in the sidebar to begin.")
+    st.stop()
+
 if not check_backend():
-    status_placeholder.error("🔴 Backend Offline")
-    st.error(f"🔌 Connection Error: Cannot reach Intelligence Server at {BACKEND_URL}")
-    st.info("💡 **System Admin:** Ensure `python src/api/server.py` is running.")
+    status_placeholder.error("Backend Offline")
+    st.error(f"Connection Error: Cannot reach Intelligence Server at {BACKEND_URL}")
+    st.info("System Admin: Ensure `python src/api/server.py` is running.")
     st.stop()
 else:
-    status_placeholder.success("🟢 Backend Online")
+    status_placeholder.success("Backend Online")
 
 # Load Data from Backend
 @st.cache_data(ttl=600)
@@ -188,61 +200,67 @@ def get_data_from_backend():
 summary, df = get_data_from_backend()
 
 if df is None or df.empty:
-    st.warning("📡 No data streams detected from backend.")
+    st.warning("No data streams detected from backend.")
     st.stop()
 
+
+# Main UI
+st.title("MD Capital Intelligence")
+st.markdown("<p style='color: #8892b0; font-size: 1.05rem;'>Submit a single, focused query for the LLM to analyze your claims data.</p>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# Initialize result state
+if "current_result" not in st.session_state:
+    st.session_state.current_result = None
+
+# Query Input Section
+st.markdown("### LLM Query (single request)")
+user_question = st.text_area(
+    "Provide a single, clear instruction for the LLM. Examples:\n- Summarize the top 5 reasons for claim rejections.\n- Which insurer has the fastest average turnaround time and why?\n- Recommend filters to investigate high-urgency claims.",
+    placeholder="Compose one focused instruction for the model (avoid conversational multi-turn prompts).",
+    height=120,
+    label_visibility="collapsed"
+)
+
+col1, col2 = st.columns([0.2, 0.8])
+with col1:
+    submit_button = st.button("Run LLM Query", use_container_width=True)
+
+# Process Query
+if submit_button and user_question:
+    try:
+        with st.spinner("Running LLM analysis..."):
+            payload = {"question": user_question, "api_key": api_key}
+            response = requests.post(f"{BACKEND_URL}/ask", json=payload, timeout=60)
+            
+            if response.status_code == 200:
+                result = response.json()["response"]
+                st.session_state.current_result = result
+            else:
+                st.error(f"System error: {response.text}")
+                st.session_state.current_result = None
+    except Exception as e:
+        st.error(f"Connection failed: {str(e)}")
+        st.session_state.current_result = None
+
+# Display Result
+if st.session_state.current_result:
+    st.markdown("---")
+    st.markdown("### LLM Response")
+    st.markdown(f"""
+    <div class="result-container" style="font-family: Inter, system-ui, sans-serif; line-height:1.45;">
+    {st.session_state.current_result}
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("---")
+
 # Dashboard Tabs
-tab1, tab2, tab3 = st.tabs(["💬 AI Agent", "📊 Analytics", "📋 Data Stream"])
+tab1, tab2 = st.tabs(["Analytics", "Data Stream"])
 
 with tab1:
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {"role": "assistant", "content": "System initialized. I am ready to analyze your claims data. How can I assist you today?"}
-        ]
-
-    # Display chat messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"], avatar="🤖" if message["role"] == "assistant" else "👤"):
-            st.markdown(message["content"])
-
-    # Chat input
-    if prompt := st.chat_input("Ask about rejection patterns, insurer performance, or specific claims..."):
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(prompt)
-
-        # Generate response
-        with st.chat_message("assistant", avatar="🤖"):
-            message_placeholder = st.empty()
-            message_placeholder.markdown("🔍 *Analyzing data streams...*")
-            
-            try:
-                payload = {"question": prompt, "api_key": api_key}
-                response = requests.post(f"{BACKEND_URL}/ask", json=payload)
-                
-                if response.status_code == 200:
-                    full_response = response.json()["response"]
-                    # Simulate typing effect
-                    displayed_text = ""
-                    for char in full_response:
-                        displayed_text += char
-                        message_placeholder.markdown(displayed_text + "▌")
-                        time.sleep(0.005)
-                    message_placeholder.markdown(full_response)
-                    st.session_state.messages.append({"role": "assistant", "content": full_response})
-                else:
-                    error_msg = f"⚠️ System Error: {response.text}"
-                    message_placeholder.error(error_msg)
-                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
-            except Exception as e:
-                error_msg = f"❌ Connection Failed: {str(e)}"
-                message_placeholder.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
-
-with tab2:
-    st.markdown("### 📊 Operational Intelligence")
+    st.markdown("### Operational Intelligence")
     
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     m_col1.metric("Total Records", summary["total_records"], delta=None)
@@ -257,7 +275,7 @@ with tab2:
     plt.style.use('dark_background')
     
     with col_a:
-        st.markdown("##### 📈 Claim Status Distribution")
+        st.markdown("##### Claim Status Distribution")
         fig, ax = plt.subplots(figsize=(8, 5))
         fig.patch.set_facecolor('#0a192f')
         ax.set_facecolor('#0a192f')
@@ -269,7 +287,7 @@ with tab2:
         st.pyplot(fig)
         
     with col_b:
-        st.markdown("##### 📉 Urgency Variance by Insurer")
+        st.markdown("##### Urgency Variance by Insurer")
         fig, ax = plt.subplots(figsize=(8, 5))
         fig.patch.set_facecolor('#0a192f')
         ax.set_facecolor('#0a192f')
@@ -280,8 +298,8 @@ with tab2:
         ax.spines['left'].set_color('#8892b0')
         st.pyplot(fig)
 
-with tab3:
-    st.markdown("### 📋 Raw Communication Stream")
+with tab2:
+    st.markdown("### Raw Communication Stream")
     st.dataframe(
         df, 
         use_container_width=True,
@@ -292,5 +310,5 @@ with tab3:
     )
 
 st.markdown("---")
-st.caption("⚡ MD Capital Intelligence System | Powered by Advanced AI")
+st.caption("MD Capital Intelligence System | Powered by Advanced AI")
 
