@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Backend: FastAPI Server",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/api/server.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "MDC_BYPASS_SSL": "1"
+            }
+        },
+        {
+            "name": "Frontend: Streamlit App",
+            "type": "python",
+            "request": "launch",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "${workspaceFolder}/src/ui/app.py"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "BACKEND_URL": "http://localhost:8000"
+            }
+        },
+        {
+            "name": "Script: Test Agent",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/test_agent.py",
+            "args": [
+                "${env:GOOGLE_API_KEY}"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "MDC_BYPASS_SSL": "1"
+            }
+        }
+    ]
+}

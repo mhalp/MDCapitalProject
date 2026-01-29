@@ -1,0 +1,41 @@
+urgency,communication_text,direction,insurer_name,claim_status,days_since_submission
+5,Claim denied - prior authorization not on file. Appeal must be submitted within 30 days with Form PA-7.,inbound,Aetna,rejected,12
+1,Payment approved and processed. EFT will arrive within 5-7 business days.,inbound,UnitedHealthcare,approved,45
+4,Third follow-up on claim #78432. No response in 45 days. Requesting immediate escalation.,outbound,Anthem,pending,45
+2,Missing referral documentation from PCP. Please resubmit with complete records.,inbound,Cigna,rejected,8
+3,Denial reason unclear - CPT code 85025 matches the procedure performed. Requesting clarification.,outbound,Blue Cross Blue Shield,rejected,22
+5,Patient requires urgent surgery. Requesting expedited prior auth within 24 hours.,outbound,Humana,pending,2
+2,Incorrect procedure code submitted. Please resubmit using CPT 99214 instead of 99213.,inbound,Kaiser Permanente,rejected,15
+1,Confirming receipt of supplemental documentation. Awaiting status update.,outbound,Aetna,under_review,30
+4,Claim under review for medical necessity. Additional clinical notes required within 14 days.,inbound,Anthem,under_review,28
+3,Payment amount lower than expected. Requesting EOB breakdown and reconsideration.,outbound,UnitedHealthcare,approved,52
+5,Appeal deadline approaching in 3 days. Still missing response from medical director review.,outbound,Cigna,appealed,57
+1,Claim processed successfully. No issues found.,inbound,Blue Cross Blue Shield,approved,20
+2,Patient eligibility could not be verified. Please confirm member ID and group number.,inbound,Humana,rejected,5
+4,Fourth attempt to reach claims department. Previous callbacks not received.,outbound,Kaiser Permanente,pending,38
+3,Requesting itemized bill breakdown for surgical procedure charges.,inbound,Aetna,under_review,25
+5,Timely filing deadline in 5 days. Original submission lost - resubmitting with proof of original date.,outbound,Anthem,pending,85
+2,Coordination of benefits issue. Need primary insurance EOB before processing.,inbound,UnitedHealthcare,rejected,18
+1,Prior authorization approved for 6 visits. Valid through end of quarter.,inbound,Cigna,approved,3
+3,Duplicate claim flagged. Please provide documentation this is a separate service date.,inbound,Blue Cross Blue Shield,under_review,14
+4,Appealing denial for experimental treatment classification. Attaching peer-reviewed studies.,outbound,Humana,appealed,42
+2,Medical records received but illegible. Please resubmit clearer copies.,inbound,Kaiser Permanente,rejected,21
+5,Patient out-of-pocket maximum reached. Expecting full coverage but claim partially denied.,outbound,Aetna,rejected,60
+1,Routine claim submission acknowledged. Estimated processing time 14 business days.,inbound,Anthem,pending,1
+3,Pre-service review completed. Approval letter being mailed to provider.,inbound,UnitedHealthcare,approved,7
+4,Second level appeal submitted. Requesting expedited review due to patient condition.,outbound,Cigna,appealed,75
+2,Place of service code incorrect. Should be 11 (office) not 22 (outpatient hospital).,inbound,Blue Cross Blue Shield,rejected,10
+1,Claim adjudicated per contract terms. Payment scheduled for next cycle.,inbound,Humana,approved,35
+3,Requesting peer-to-peer review with medical director for denied MRI.,outbound,Kaiser Permanente,rejected,19
+5,Emergency room claim denied as non-emergency. Patient presented with chest pain.,outbound,Aetna,rejected,30
+2,Modifier 25 required for E/M service billed same day as procedure.,inbound,Anthem,rejected,9
+4,No response to three prior auth requests. Escalating to supervisor.,outbound,UnitedHealthcare,pending,21
+1,Thank you for the additional documentation. Claim now approved.,inbound,Cigna,approved,40
+3,Out-of-network claim. Applying non-par reimbursement rates.,inbound,Blue Cross Blue Shield,under_review,16
+5,Patient needs medication refill but prior auth expired. Requesting urgent renewal.,outbound,Humana,pending,0
+2,NPI number on claim does not match rendering provider. Please correct and resubmit.,inbound,Kaiser Permanente,rejected,6
+4,Appeal denied at first level. Preparing external review request.,outbound,Aetna,appealed,90
+1,Preventive service covered at 100%. No patient responsibility.,inbound,Anthem,approved,12
+3,Bundled payment issue - some services included in global period.,inbound,UnitedHealthcare,rejected,24
+5,Claim for air ambulance transport denied. Life-threatening situation documented.,outbound,Cigna,rejected,55
+2,Date of service does not match authorization dates. Please verify.,inbound,Blue Cross Blue Shield,rejected,11
