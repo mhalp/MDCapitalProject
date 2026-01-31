@@ -47,17 +47,19 @@ cp .env.example .env
 ```
 
 ### 3. Running the Application
-The app requires two separate processes:
+The app requires two separate processes (run in separate terminal windows):
 
 **Step A: Start the Backend Server**
 ```bash
-python src/api/server.py
+python3 -m src.api.server
 ```
 
 **Step B: Start the Frontend Client**
 ```bash
 streamlit run src/ui/app.py
 ```
+
+The backend will run on `http://localhost:8000` and the frontend on `http://localhost:8501`
 
 ## 🛠️ Debugging & Testing
 You can test the AI agent logic without the UI using the provided script:

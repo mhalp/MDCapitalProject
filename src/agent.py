@@ -1,5 +1,4 @@
 import os
-import sys
 import ssl
 import logging
 
@@ -22,14 +21,11 @@ if os.path.exists(combined_cert_path):
 elif os.path.exists(etrog_cert_path):
     cert_path = etrog_cert_path
 
-print(f"DEBUG: Checking for certificate. Selected: {cert_path}")
 if cert_path:
-    print(f"DEBUG: Found custom certificate at {cert_path}. Configuring SSL...")
     os.environ['GRPC_DEFAULT_SSL_ROOTS_FILE_PATH'] = cert_path
     os.environ['SSL_CERT_FILE'] = cert_path
     os.environ['REQUESTS_CA_BUNDLE'] = cert_path
 elif os.environ.get('MDC_BYPASS_SSL') == '1':
-    print("DEBUG: SSL Verification is BYPASSED (MDC_BYPASS_SSL=1)")
     os.environ['CURL_CA_BUNDLE'] = ''
     os.environ['PYTHONHTTPSVERIFY'] = '0'
     if hasattr(ssl, '_create_unverified_context'):

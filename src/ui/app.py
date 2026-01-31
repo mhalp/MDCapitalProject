@@ -2,10 +2,8 @@ import streamlit as st
 import pandas as pd
 import os
 import requests
-import matplotlib.pyplot as plt
 import seaborn as sns
 from dotenv import load_dotenv
-import time
 
 # Load environment variables
 load_dotenv()
@@ -270,6 +268,8 @@ with tab1:
     
     st.markdown("---")
     col_a, col_b = st.columns(2)
+    
+    import matplotlib.pyplot as plt
     
     # Set dark theme for plots
     plt.style.use('dark_background')

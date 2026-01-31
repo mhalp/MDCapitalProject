@@ -3,14 +3,12 @@ from pydantic import BaseModel
 import pandas as pd
 import os
 import logging
-import sys
 
-# Add project root to path
+from ..agent import MDCCapitalAgent
+from ..utils import load_data, get_data_summary
+
+# Resolve project root for data path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-sys.path.append(PROJECT_ROOT)
-
-from src.agent import MDCCapitalAgent
-from src.utils import load_data, get_data_summary
 
 # Configure logging
 logging.basicConfig(
