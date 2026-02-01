@@ -1,11 +1,10 @@
 pandas
 streamlit
-langchain
+requests
 langchain-google-genai
-langchain-community
-faiss-cpu
 python-dotenv
-langchain-experimental
-langchainhub
 matplotlib
 seaborn
+fastapi
+uvicorn
+pydantic

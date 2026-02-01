@@ -1,77 +1,73 @@
-# MD Capital AI Claims Agent 🏥
+# MD Capital Intelligence System
 
-An intelligent AI-powered agent designed to analyze insurer communications for MD Capital. This tool allows management to ask natural language questions and receive data-driven insights from both structured data and unstructured communication text.
+A premium AI-powered analytics platform for insurer communication analysis. This system leverages Large Language Models (Gemini 2.0) to provide data-driven insights into insurance claims, urgency levels, and turnaround times.
 
-## 📁 Project Structure
+## 🚀 Overview
 
+The MD Capital Intelligence System consists of a robust FastAPI backend and a sophisticated Streamlit frontend, providing a seamless bridge between raw data streams and actionable business intelligence.
+
+### Key Features
+- **AI-Powered Query Engine**: Natural language interface for complex data analysis.
+- **Interactive Analytics Dashboard**: Visualizes claim status distributions and urgency variances.
+- **Operational Metrics**: Real-time tracking of total records, insurer counts, and performance averages.
+- **Enterprise-Ready Connectivity**: Built-in support for custom SSL environments and filtered network traffic.
+
+## 🛠 Technology Stack
+- **Frontend**: [Streamlit](https://streamlit.io/) (High-performance UI)
+- **Backend**: [FastAPI](https://fastapi.tiangolo.com/) (Asynchronous API layer)
+- **AI Engine**: [Google Gemini 2.0](https://deepmind.google/technologies/gemini/) (via LangChain)
+- **Data Processing**: [Pandas](https://pandas.pydata.org/), [Seaborn](https://seaborn.pydata.org/)
+
+## 📂 Project Structure
 ```text
-.
-├── data/                   # Raw insurer communication data (CSV)
-├── docs/                   # Documentation and sample outputs
-├── scripts/                # Utility and debugging scripts
+MD/
 ├── src/
-│   ├── api/                # FastAPI Backend Server
-│   ├── ui/                 # Streamlit Frontend Client
-│   ├── agent.py            # Core AI Agent logic (Gemini)
-│   └── utils.py            # Data processing utilities
-├── .env.example            # Template for environment variables
-├── requirements.txt        # Project dependencies
-└── README.md               # You are here
+│   ├── api/            # FastAPI Backend
+│   │   └── server.py
+│   ├── ui/             # Streamlit Frontend
+│   │   ├── app.py
+│   │   └── assets/     # UI Assets (Logo, Icons)
+│   ├── agent.py        # LangChain Agent Logic
+│   └── utils.py        # Shared Utilities
+├── data/               # Source Datasets
+├── dev_tools/          # Diagnostic & Script Archive
+├── requirements.txt    # System Dependencies
+└── README.md
 ```
 
-## ✨ Features
-- **Dual-Layer Analysis**: Processes structured metrics (status, urgency) alongside unstructured text.
-- **Client-Server Architecture**: Separated Backend (FastAPI) and Frontend (Streamlit) for scalability and easier debugging.
-- **Gemini Integration**: Powered by Google's Gemini 1.5 Flash for high-speed, intelligent reasoning.
-- **Interactive Dashboard**: Premium UI with real-time charts and data exploration.
-- **Deep Debugging**: Built-in logging and instrumentation to track AI reasoning steps.
-
-## 🚀 Getting Started
+## ⚙️ Installation & Setup
 
 ### 1. Prerequisites
 - Python 3.10+
-- Google AI Studio API Key (Gemini)
+- Google Gemini API Key
 
-### 2. Installation
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+GOOGLE_API_KEY=your_gemini_api_key_here
+BACKEND_URL=http://localhost:8000
+```
+
+### 3. Install Dependencies
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd md-capital-agent
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Setup environment variables
-cp .env.example .env
-# Edit .env and add your GOOGLE_API_KEY
 ```
 
-### 3. Running the Application
-The app requires two separate processes (run in separate terminal windows):
+### 4. Running the System
+The system requires both the backend and frontend to be active.
 
-**Step A: Start the Backend Server**
+**Start the Backend:**
 ```bash
-python3 -m src.api.server
+python -m src.api.server
 ```
 
-**Step B: Start the Frontend Client**
+**Start the Frontend:**
 ```bash
 streamlit run src/ui/app.py
 ```
 
-The backend will run on `http://localhost:8000` and the frontend on `http://localhost:8501`
-
-## 🛠️ Debugging & Testing
-You can test the AI agent logic without the UI using the provided script:
-```bash
-python scripts/test_agent.py <YOUR_API_KEY>
-```
-
-## 🔒 PHI/PII & Compliance
-For production use at MD Capital, the following enhancements are recommended:
-- **De-identification**: Implement a PII scrubber (like Microsoft Presidio) before data reaches the LLM.
-- **Enterprise AI**: Move to Vertex AI (Google Cloud) for enterprise-grade security and HIPAA compliance.
-- **Audit Trails**: Enable comprehensive logging of all data access and AI generations.
+## 🔒 Security & Connectivity
+The system is designed to operate in restricted network environments. It automatically detects and uses custom SSL certificates (`combined.pem` or `etrog.crt`) to ensure secure communication with Google APIs.
 
 ---
-*Built for the MD Capital AI Developer Take-Home Exercise.*
+© 2026 MD Capital | Proprietary AI Solutions
