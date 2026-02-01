@@ -1,9 +1,11 @@
 import os
 import ssl
 import logging
-from typing import Optional
+import traceback
+from typing import Optional, Dict, Any, Union
 import pandas as pd
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage
 
 # Configure logger for the agent
 logger = logging.getLogger("MDCCapital.Agent")
@@ -44,88 +46,127 @@ setup_ssl_environment()
 class MDCCapitalAgent:
     """
     AI Agent responsible for analyzing insurer communication data using Gemini LLM.
+    Uses a "Plan-and-Execute" workflow for reliable business insights.
     """
     
     def __init__(self, df: pd.DataFrame, api_key: str, model: str = "gemini-2.0-flash"):
         """
         Initialize the agent with data and API configuration.
-        
-        Args:
-            df (pd.DataFrame): The insurer data to analyze.
-            api_key (str): Google Gemini API key.
-            model (str): Gemini model identifier.
         """
         self.df = df
         self.api_key = api_key
-        # Initialize Gemini with REST transport to improve reliability in some environments
         self.llm = ChatGoogleGenerativeAI(
             model=model, 
             google_api_key=api_key, 
             temperature=0,
             transport="rest",
         )
-        logger.info(f"Agent initialized with model: {model}")
+        logger.info(f"Agent initialized with model: {model} (Plan-and-Execute Mode)")
         
-    def _prepare_prompt(self, question: str) -> str:
+    def _planner(self, question: str) -> str:
         """
-        Construct a detailed prompt by injecting data context into the template.
-        
-        Args:
-            question (str): User's natural language question.
-            
-        Returns:
-            str: Full prompt for the LLM.
+        The Planner: LLM writes Python/Pandas code to solve the user's question.
         """
-        context_header = "You are an AI Agent for MD Capital. Use the following insurer communications data to answer the user's question.\n\n"
+        schema_info = []
+        for col, dtype in self.df.dtypes.items():
+            sample = self.df[col].dropna().unique()[:3]
+            schema_info.append(f"- {col} ({dtype}): e.g., {list(sample)}")
         
-        # Add basic statistics summary
-        stats = self.df.describe(include='all').to_string()
-        
-        # Format individual communication records for context
-        records_list = []
-        for _, row in self.df.iterrows():
-            records_list.append(
-                f"Insurer: {row['insurer_name']} | Status: {row['claim_status']} | "
-                f"Urgency: {row['urgency']} | Days: {row['days_since_submission']} | "
-                f"Text: {row['communication_text']}"
-            )
-        records = "\n".join(records_list)
+        schema_str = "\n".join(schema_info)
         
         prompt = f"""
-{context_header}
+        You are a Data Analyst for MD Capital. Write Python code using pandas to answer the question below.
+        
+        ### DATAFRAME SCHEMA (`df`) ###
+        {schema_str}
+        
+        The DataFrame is already loaded as 'df'.
+        Your code should calculate the answer and store it in a variable named 'result'.
+        
+        Rules:
+        1. ONLY output the Python code block. No explanations.
+        2. Use strictly pandas and standard Python.
+        3. Do not assume any external variables (like 'stop_words') or libraries are available.
+        4. If you need to analyze text, use simple pandas string operations (e.g., .str.contains, .value_counts).
+        5. Focus on accuracy and business logic.
+        
+        User Question: {question}
+        
+        Python Code:
+        """
+        
+        response = self.llm.invoke(prompt)
+        code = str(response.content).strip()
+        
+        # Clean up Markdown formatting if present
+        if "```python" in code:
+            code = code.split("```python")[1].split("```")[0].strip()
+        elif "```" in code:
+            code = code.split("```")[1].split("```")[0].strip()
+            
+        return code
 
-### DATA STATISTICS ###
-{stats}
+    def _executor(self, code: str) -> Any:
+        """
+        The Executor: Runs the generated code against the dataframe.
+        """
+        logger.info(f"Executing Plan:\n{code}")
+        
+        # Use a localized scope for execution
+        local_vars = {"df": self.df, "pd": pd}
+        try:
+            # We use exec() but only provide the df and necessary libs
+            exec(code, {"__builtins__": __builtins__}, local_vars)
+            result = local_vars.get("result", "No result variable set in code.")
+            
+            # Format result if it's a DF/Series
+            if isinstance(result, (pd.DataFrame, pd.Series)):
+                return result.to_string()
+            return result
+        except Exception as e:
+            logger.error(f"Execution Error: {str(e)}\n{traceback.format_exc()}")
+            return f"Error executing code: {str(e)}"
 
-### COMMUNICATION RECORDS ###
-{records}
+    def _reporter(self, question: str, raw_result: Any) -> str:
+        """
+        The Reporter: Turns raw Pandas output into a high-impact executive insight.
+        """
+        prompt = f"""
+        You are a Senior Strategic Analyst at MD Capital. Provide a high-impact, data-driven response.
 
-### USER QUESTION ###
-{question}
+        USER QUERY: "{question}"
+        RAW ANALYSIS DATA: {raw_result}
 
-Provide a detailed, data-driven answer based ONLY on the data provided above.
-"""
-        return prompt
+        INSTRUCTIONS:
+        1. NO CONVERSATIONAL FILLER. Do not say "Good morning", "Here is the report", "Today we focus on", or "I hope this helps".
+        2. START WITH THE DATA. Provide the direct answer first.
+        3. BE CONCISE. Use bullet points for multiple findings.
+        4. USE BOLDING for key metrics and insurers.
+        5. ADD A "STRATEGIC IMPACT" sentence at the end explaining what this data means for MD Capital's bottom line.
+        
+        Response:
+        """
+        
+        response = self.llm.invoke(prompt)
+        return str(response.content).strip()
 
     def ask(self, question: str) -> str:
         """
-        Processes a query and returns the LLM response.
-        
-        Args:
-            question (str): User's question about the claims data.
-            
-        Returns:
-            str: The AI's response or an error message.
+        Processes a query using the Plan-and-Execute workflow.
         """
-        logger.info(f"Processing query: {question[:50]}...")
-        
-        prompt = self._prepare_prompt(question)
-        logger.debug(f"Prompt length: {len(prompt)} characters")
+        logger.info(f"Agent received question: {question}")
         
         try:
-            response = self.llm.invoke(prompt)
-            logger.info("Successfully received LLM response")
-            return str(response.content)
+            # 1. Plan
+            code = self._planner(question)
+            
+            # 2. Execute
+            raw_result = self._executor(code)
+            
+            # 3. Report
+            final_answer = self._reporter(question, raw_result)
+            
+            return final_answer
         except Exception as e:
-            logger.error(f"LLM Error: {type(e).__name__} - {str(e)}")
-            return f"Error communicating with Gemini: {str(e)}"
+            logger.error(f"Workflow Exception: {str(e)}")
+            return f"Strategic Analysis Failed: {str(e)}"

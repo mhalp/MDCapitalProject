@@ -1,67 +1,69 @@
 # 🎯 Sample Queries & Intelligence Outputs
 
-This document showcases the analytical capabilities of the **MD Capital AI Agent**. The agent performs real-time synthesis of insurer communication logs, turning raw text and metadata into strategic insights.
+This document showcases the analytical capabilities of the **MD Capital AI Agent**. The agent uses a **Plan-and-Execute** workflow to turn raw data into strategic insights.
 
 ---
 
-### 📊 1. Pattern Recognition: Denial Root Causes
+### 📊 1. Analyze the top 5 recurring reasons for claim reje...
 **User instruction:** *"Analyze the top 5 recurring reasons for claim rejections and identify which insurers are most associated with each."*
 
 **Agent response:**
-> Based on a comprehensive review of the 41 communication records, here are the primary drivers of claim denials:
->
-> 1.  **Administrative & Prior Authorization (PA)**: This is the leading cause. **Aetna** and **Humana** frequently deny claims due to missing or expired authorizations.
-> 2.  **Coding Accuracy**: Errors in CPT codes (e.g., 99214 vs 99213) are common with **Aetna** and **Kaiser Permanente**.
-> 3.  **Documentation Gaps**: **Cigna** and **Anthem** often cite missing clinical notes or PCP referrals.
-> 4.  **Verification Failures**: **Humana** shows a pattern of eligibility verification issues (e.g., Member ID mismatches).
-> 5.  **Coordination of Benefits (COB)**: **UnitedHealthcare** is the primary insurer requiring primary EOBs before processing.
+*   **Prior Authorization Missing:** **Aetna** is associated with denials due to missing prior authorizations.
+*   **Missing Referral Documentation:** **Cigna** is associated with denials due to missing PCP referral documentation.
+*   **Unclear Denial Reason/CPT Code Mismatch:** **Blue Cross Blue Shield** is associated with denials where the reason is unclear or related to CPT code discrepancies.
+*   **Incorrect Procedure Code:** **Kaiser Permanente** is associated with denials due to the submission of incorrect procedure codes.
+*   **Patient Eligibility Issues:** **Humana** is associated with denials related to patient eligibility verification problems.
+
+STRATEGIC IMPACT: Reducing claim rejections from these insurers by addressing these top 5 reasons will directly improve MD Capital's revenue cycle efficiency and profitability.
 
 ---
 
-### 🏢 2. Competitive Benchmarking: Aetna vs. UnitedHealthcare
-**User instruction:** *"Contrast the communication tone and primary issues between Aetna and UnitedHealthcare. Who is more efficient?"*
+### 📊 2. Contrast the communication tone and primary issues...
+**User instruction:** *"Contrast the communication tone and primary issues between Aetna and UnitedHealthcare. Who is more efficient (lowest average latency)?"*
 
 **Agent response:**
-> **Aetna Communications**: Characterized by a "Corrective" tone. Issues are heavily documentation-focused (Itemized bills, PA-7 forms). Aetna also shows the highest average latency at **43.4 days**, indicating a more complex turnaround process.
->
-> **UnitedHealthcare Communications**: More "Process-Oriented". While they have COB issues, their communications often confirm payment processing and EFT status. They demonstrate higher efficiency with an average turnaround of **29.8 days**.
->
-> **Strategic Insight**: Redirect documentation heavy-loads away from Aetna's manual review process to reduce the 40+ day lag.
+**UnitedHealthcare** exhibits greater efficiency with an average latency of **27.83** days compared to **Aetna's** **41.17** days.
+
+*   **Aetna's** communication tone centers on claim denials, appeals, and patient out-of-pocket expenses. Primary claim status issues involve rejections and claims under review.
+*   **UnitedHealthcare's** communication focuses on payments, Explanation of Benefits (EOBs), and authorizations. Claim status is primarily approvals, with some rejections.
+
+STRATEGIC IMPACT: **UnitedHealthcare's** superior efficiency and proactive communication may indicate stronger operational management, potentially making them a more attractive investment target than **Aetna**, impacting MD Capital's portfolio allocation decisions.
 
 ---
 
-### ⚡ 3. High-Urgency Analysis
+### 📊 3. Summarize all urgency level 5 records. What are th...
 **User instruction:** *"Summarize all urgency level 5 records. What are the common denominators?"*
 
 **Agent response:**
-> Urgency Level 5 records represent **Critical Risk** scenarios. The common denominators across these records are:
->
-> *   **Hard Deadlines**: Timely filing limits (5 days remaining) and Appeal windows (3 days remaining).
-> *   **Clinical Severity**: Life-threatening situations (Air Ambulances) or urgent surgical requirements.
-> *   **Financial Exposure**: Cases where out-of-pocket maximums have been reached, necessitating immediate full coverage.
-> *   **Operational Blocks**: Expired authorizations for critical medication refills.
+*   **Claim Status:** Predominantly rejected (**4 out of 8**) followed by pending (**3 out of 8**). Appealed claims are minimal (**1 out of 8**).
+*   **Insurers:** **Aetna** leads with **3 out of 8** claims, followed by **Humana** and **Cigna** tied at **2 out of 8** each. **Anthem** has **1 out of 8**.
+*   **Communication Direction:** Primarily outbound communication (**7 out of 8**).
+*   **Keywords:** "Claim" and "Patient" are the most frequent keywords (**4 mentions each**), followed by "Prior" and "With" (**3 mentions each**). "Denied" appears twice.
+*   **Days Since Submission:** Average of **37.6 days**, with a wide range (0-85 days) and a standard deviation of 31.2 days.
+
+STRATEGIC IMPACT: The high rejection rate and significant average time since submission for urgency level 5 claims indicate potential inefficiencies or systemic issues in claim processing with **Aetna, Humana, and Cigna**, impacting MD Capital's resource allocation and potentially necessitating targeted interventions to improve claim outcomes and reduce administrative overhead.
 
 ---
 
-### ⏱️ 4. Latency & Performance Metrics
+### 📊 4. Identify the 'Danger Zone'—claims that have been p...
 **User instruction:** *"Identify the 'Danger Zone'—claims that have been pending for over 50 days. Is there a specific insurer pattern?"*
 
 **Agent response:**
-> There are **6 records** in the "Danger Zone" (>50 days):
->
-> *   **Anthem**: 85 days (Timely filing risk).
-> *   **Aetna**: 90 days (External review stage) and 60 days (Partially denied).
-> *   **Cigna**: 57 days (Appealed) and 55 days (Air ambulance denial).
-> *   **UnitedHealthcare**: 52 days (Approved, but auditing payment).
->
-> **Pattern**: Claims that cross the 50-day mark typically graduate from "Pending" to "Appealed" or face "Final Denial" stages, specifically with **Aetna** and **Anthem**.
+*   **Anthem** has **1** claim pending for over 50 days.
+
+STRATEGIC IMPACT: While the volume is low, the presence of even a single claim exceeding 50 days with **Anthem** warrants further investigation to identify potential systemic issues impacting reimbursement timelines and MD Capital's cash flow.
 
 ---
 
-### 💡 5. Proactive Recommendations
+### 📊 5. Based on the data, what are the top 3 actions we c...
 **User instruction:** *"Based on the data, what are the top 3 actions we can take this week to improve our revenue cycle?"*
 
 **Agent response:**
-> 1.  **Expedite Cigna Appeals**: Address the level 2 appeals for Cigna (currently at 75 days) to unlock aging receivables.
-> 2.  **Audit PA Workflow for Aetna**: Aetna's 30-day "Prior Auth not on file" denials are preventable. Implement a pre-submission PA check.
-> 3.  **Standardize Modifier 25 with Anthem**: Recurring denials for Modifier 25 suggest a systematic billing error that can be fixed via global template updates.
+*   Reduce rejected claims with **Kaiser Permanente** by addressing common rejection reasons.
+*   Expedite pending claims with high urgency to improve cash flow.
+*   Address the most common rejection reason: "please."
+
+STRATEGIC IMPACT: Focusing on these three actions this week will directly improve cash flow and reduce revenue leakage, positively impacting MD Capital's profitability.
+
+---
+
