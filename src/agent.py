@@ -2,7 +2,8 @@ import os
 import ssl
 import logging
 import traceback
-from typing import Optional, Dict, Any, Union
+import json
+from typing import Optional, Dict, Any, Union, List
 import pandas as pd
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
@@ -63,6 +64,73 @@ class MDCCapitalAgent:
         )
         logger.info(f"Agent initialized with model: {model} (Plan-and-Execute Mode)")
         
+    def _enrich_data(self):
+        """
+        Enriches the dataframe with 'denial_category' and 'tone' using LLM.
+        This is a one-time preprocessing step that makes Pandas queries more powerful.
+        """
+        # Skip if columns already exist
+        if 'denial_category' in self.df.columns and 'tone' in self.df.columns:
+            return
+
+        logger.info("Executing Preprocessing Pipeline: Analyzing communication text...")
+        
+        texts_to_process = self.df['communication_text'].tolist()
+        num_records = len(texts_to_process)
+        
+        # Batch processing to optimize API calls
+        chunk_size = 15
+        categories = ["Other"] * num_records
+        tones = ["Cooperative"] * num_records
+        
+        for i in range(0, num_records, chunk_size):
+            chunk = texts_to_process[i:i + chunk_size]
+            formatted_texts = "\n".join([f"ID {idx}: {text}" for idx, text in enumerate(chunk)])
+            
+            prompt = f"""
+            Analyze the following insurance communication texts for MD Capital. 
+            For each entry, determine two attributes:
+            1. denial_category: Identify the primary reason for denial. Examples: "Missing Info", "Prior Auth", "Coding Error", "Medical Necessity", "Experimental", "Duplicate Claim".
+            2. tone: Determine if the insurer's communication tone is "Cooperative" or "Obstructive".
+
+            Return ONLY a valid JSON list of objects. NO OTHER TEXT.
+            FORMAT: [
+                {{"id": 0, "category": "Missing Info", "tone": "Obstructive"}},
+                ...
+            ]
+            
+            TEXTS:
+            {formatted_texts}
+            """
+            
+            try:
+                response = self.llm.invoke(prompt)
+                content = str(response.content).strip()
+                
+                # Clean up JSON formatting if present in LLM output
+                if content.startswith("```json"):
+                    content = content[7:-3].strip()
+                elif content.startswith("```"):
+                    content = content[3:-3].strip()
+                
+                results = json.loads(content)
+                for item in results:
+                    local_idx = item.get("id")
+                    if local_idx is not None:
+                        global_idx = i + local_idx
+                        if global_idx < num_records:
+                            categories[global_idx] = item.get("category", "Other")
+                            tones[global_idx] = item.get("tone", "Cooperative")
+            except Exception as e:
+                logger.error(f"Preprocessing failed for chunk {i}: {e}")
+                # Fallback values already initialized
+                continue
+
+        # Add the new columns to the dataframe
+        self.df['denial_category'] = categories
+        self.df['tone'] = tones
+        logger.info(f"Preprocessing Pipeline complete. Enriched {num_records} records.")
+
     def _planner(self, question: str) -> str:
         """
         The Planner: LLM writes Python/Pandas code to solve the user's question.
@@ -157,6 +225,9 @@ class MDCCapitalAgent:
         logger.info(f"Agent received question: {question}")
         
         try:
+            # 0. Preprocess / Enrich Data
+            self._enrich_data()
+            
             # 1. Plan
             code = self._planner(question)
             

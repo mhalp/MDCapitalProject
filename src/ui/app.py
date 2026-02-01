@@ -266,6 +266,8 @@ if st.session_state.is_processing:
             
             if response.status_code == 200:
                 st.session_state.current_ai_response = response.json()["response"]
+                # Clear cache to ensure dashboard reflects AI-enriched columns (category/tone)
+                st.cache_data.clear()
             else:
                 st.error(f"Analysis failed: {response.text}")
     except Exception as e:
@@ -326,6 +328,33 @@ with tab_viz:
         ax2.xaxis.label.set_color('#ffffff')
         ax2.yaxis.label.set_color('#ffffff')
         st.pyplot(fig2)
+
+    # AI Enrichment Insights
+    if 'denial_category' in df.columns and 'tone' in df.columns:
+        st.markdown("---")
+        col_c1, col_c2 = st.columns(2)
+        
+        with col_c1:
+            st.markdown("##### 🔍 AI Insights: Denial Categories")
+            fig3, ax3 = plt.subplots(figsize=(8, 5))
+            fig3.patch.set_facecolor('#0a192f')
+            ax3.set_facecolor('#0a192f')
+            sns.countplot(data=df, y='denial_category', palette='rocket', ax=ax3)
+            plt.xticks(color='#ffffff')
+            plt.yticks(color='#ffffff')
+            ax3.xaxis.label.set_color('#ffffff')
+            ax3.yaxis.label.set_color('#ffffff')
+            st.pyplot(fig3)
+            
+        with col_c2:
+            st.markdown("##### 🎭 AI Insights: Insurer Tone")
+            fig4, ax4 = plt.subplots(figsize=(8, 5))
+            fig4.patch.set_facecolor('#0a192f')
+            ax4.set_facecolor('#0a192f')
+            tone_counts = df['tone'].value_counts()
+            colors = ['#64ffda' if t == 'Cooperative' else '#ff4d4d' for t in tone_counts.index]
+            plt.pie(tone_counts, labels=tone_counts.index, autopct='%1.1f%%', colors=colors, textprops={'color':"w"})
+            st.pyplot(fig4)
 
 with tab_raw:
     st.markdown("### Communication Logs")

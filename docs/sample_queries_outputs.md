@@ -67,3 +67,14 @@ STRATEGIC IMPACT: Focusing on these three actions this week will directly improv
 
 ---
 
+### 📊 6. Strategic Preprocessing: Analyzing Denial Categories & Tone
+**User instruction:** *"What percentage of our denials are due to 'Coding Errors' vs 'Missing Info'? Also, which insurers are the most 'Obstructive' in their communication?"*
+
+**Agent response (Example of enhanced capability):**
+*   **Coding Error denials:** represent **15.4%** of the total volume.
+*   **Missing Information denials:** are the primary driver at **42.3%**.
+*   **Most Obstructive Insurer:** **Aetna** shows the highest frequency of obstructive communication patterns (refusal to clarify terms, repeated documentation requests).
+*   **Cooperative Partners:** **Humana** maintain a consistently cooperative tone in over **90%** of interactions.
+
+STRATEGIC IMPACT: By identifying that **42.3%** of issues stem from "Missing Info," MD Capital can implement front-end workflow changes to ensure complete submissions, while the "Obstructive" rating for **Aetna** suggests a need for specialized legal or advocacy resources when dealing with their claims.
+
