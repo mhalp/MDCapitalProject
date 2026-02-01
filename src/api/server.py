@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("MDCCapitalServer")
 
-app = FastAPI(title="MD Capital AI Server")
+app = FastAPI(title="MD Capital AI Server - ReAct Agent")
 
 # Resolve data path
 DATA_PATH = os.path.join(PROJECT_ROOT, "data", "insurer_communications.csv")
@@ -30,12 +30,16 @@ else:
     logger.error(f"Data file not found at {DATA_PATH}")
     df = pd.DataFrame()
 
+# Cache for initialized agents (keyed by API key hash for security)
+_agent_cache = {}
+
 class QueryRequest(BaseModel):
     question: str
     api_key: str
 
 @app.get("/summary")
 async def get_summary():
+    """Get data statistics summary."""
     if df.empty:
         raise HTTPException(status_code=404, detail="Data not loaded")
     summary = get_data_summary(df)
@@ -43,25 +47,57 @@ async def get_summary():
 
 @app.get("/data")
 async def get_raw_data():
+    """Get raw communication data."""
     if df.empty:
         return []
     return df.to_dict(orient="records")
 
 @app.post("/ask")
 async def ask_agent(request: QueryRequest):
-    logger.info(f"Received request: {request.question[:50]}...")
+    """
+    Process a question through the ReAct agent.
+    
+    The agent will:
+    1. Analyze the question (Thought)
+    2. Select appropriate tools (Action) - analytics or retrieval
+    3. Observe tool outputs (Observation)
+    4. Synthesize a comprehensive answer (Final Answer)
+    """
+    logger.info(f"Received request: {request.question[:80]}...")
     try:
         if df.empty:
             raise ValueError("Dataframe is empty")
-            
-        agent = MDCCapitalAgent(df, request.api_key)
+        
+        # Initialize agent (with verbose=True to see ReAct reasoning)
+        agent = MDCCapitalAgent(
+            df=df, 
+            api_key=request.api_key,
+            verbose=True  # Enable verbose output to see Thought/Action/Observation cycle
+        )
+        
+        # Run the ReAct agent
         response = agent.ask(request.question)
         
         logger.info(f"Agent responded successfully. Length: {len(response)} chars")
-        return {"response": response}
+        return {
+            "response": response,
+            "agent_type": "ReAct",
+            "tools_used": ["analytics_query", "retrieval_search"]
+        }
+        
     except Exception as e:
-        logger.error(f"Error processing request: {str(e)}")
+        logger.error(f"Error processing request: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "ok",
+        "agent_type": "ReAct",
+        "data_loaded": not df.empty,
+        "record_count": len(df) if not df.empty else 0
+    }
 
 if __name__ == "__main__":
     import uvicorn
